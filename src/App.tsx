@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, TextField, Button, List, ListItem, ListItemText, IconButton, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { supabase } from './supabaseClient';
+
+// Define the base URL for your Express API
+const API_BASE_URL = import.meta.env.VITE_EXPRESS_API_URL;
 
 interface Todo {
-  id: string; // Supabase UUIDs are strings
+  id: number; // Using number for now, will be managed by Express backend
   text: string;
   completed: boolean;
 }
@@ -18,64 +20,81 @@ function App() {
   }, []);
 
   const fetchTodos = async () => {
-    const { data, error } = await supabase
-      .from('todos')
-      .select('id, text, completed')
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching todos:', error.message);
-    } else {
-      setTodos(data || []);
+    try {
+      const response = await fetch(`${API_BASE_URL}/todos`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: Todo[] = await response.json();
+      setTodos(data);
+    } catch (error) {
+      console.error('Error fetching todos:', error);
     }
   };
 
   const addTodo = async () => {
     if (inputValue.trim() === '') return;
 
-    const { data, error } = await supabase
-      .from('todos')
-      .insert([{ text: inputValue, completed: false }])
-      .select(); // Select the inserted data to get the generated ID
+    try {
+      const response = await fetch(`${API_BASE_URL}/todos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: inputValue, completed: false }),
+      });
 
-    if (error) {
-      console.error('Error adding todo:', error.message);
-    } else if (data && data.length > 0) {
-      setTodos((prevTodos) => [...prevTodos, data[0]]);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const newTodo: Todo = await response.json();
+      setTodos((prevTodos) => [...prevTodos, newTodo]);
       setInputValue('');
+    } catch (error) {
+      console.error('Error adding todo:', error);
     }
   };
 
-  const toggleTodo = async (id: string) => {
+  const toggleTodo = async (id: number) => {
     const todoToUpdate = todos.find((todo) => todo.id === id);
     if (!todoToUpdate) return;
 
-    const { error } = await supabase
-      .from('todos')
-      .update({ completed: !todoToUpdate.completed })
-      .eq('id', id);
+    try {
+      const response = await fetch(`${API_BASE_URL}/todos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ completed: !todoToUpdate.completed }),
+      });
 
-    if (error) {
-      console.error('Error toggling todo:', error.message);
-    } else {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      // Assuming the backend returns the updated todo
+      const updatedTodo: Todo = await response.json();
       setTodos((prevTodos) =>
         prevTodos.map((todo) =>
-          todo.id === id ? { ...todo, completed: !todo.completed } : todo
+          todo.id === id ? updatedTodo : todo
         )
       );
+    } catch (error) {
+      console.error('Error toggling todo:', error);
     }
   };
 
-  const deleteTodo = async (id: string) => {
-    const { error } = await supabase
-      .from('todos')
-      .delete()
-      .eq('id', id);
+  const deleteTodo = async (id: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/todos/${id}`, {
+        method: 'DELETE',
+      });
 
-    if (error) {
-      console.error('Error deleting todo:', error.message);
-    } else {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+    } catch (error) {
+      console.error('Error deleting todo:', error);
     }
   };
 
