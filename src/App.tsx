@@ -60,7 +60,7 @@ function App() {
     if (!todoToUpdate) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/todos/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/todos?id=${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ function App() {
 
   const deleteTodo = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/todos/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/todos?id=${id}`, {
         method: 'DELETE',
       });
 
