@@ -22,11 +22,15 @@ function App() {
 
   const fetchTodos = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/todos`);
+      const url = `${API_BASE_URL}/api/todos`;
+      console.log('Fetching from:', url);
+      const response = await fetch(url);
+      console.log('Response status:', response.status);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data: Todo[] = await response.json();
+      console.log('Fetched todos:', data);
       setTodos(data);
     } catch (error) {
       console.error('Error fetching todos:', error);
@@ -37,7 +41,7 @@ function App() {
     if (inputValue.trim() === '') return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/todos`, {
+      const response = await fetch(`${API_BASE_URL}/api/todos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +65,7 @@ function App() {
     if (!todoToUpdate) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/todos/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/todos/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -86,7 +90,7 @@ function App() {
 
   const deleteTodo = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/todos/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/todos/${id}`, {
         method: 'DELETE',
       });
 
