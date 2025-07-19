@@ -4,7 +4,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 // Define the base URL for your Express API
 const API_BASE_URL = import.meta.env.VITE_EXPRESS_API_URL;
-console.log('API_BASE_URL:', API_BASE_URL);
 
 interface Todo {
   id: number; // Using number for now, will be managed by Express backend
@@ -22,15 +21,11 @@ function App() {
 
   const fetchTodos = async () => {
     try {
-      const url = `${API_BASE_URL}/api/todos`;
-      console.log('Fetching from:', url);
-      const response = await fetch(url);
-      console.log('Response status:', response.status);
+      const response = await fetch(`${API_BASE_URL}/api/todos`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data: Todo[] = await response.json();
-      console.log('Fetched todos:', data);
       setTodos(data);
     } catch (error) {
       console.error('Error fetching todos:', error);
