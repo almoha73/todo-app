@@ -51,5 +51,13 @@ app.delete('/todos/:id', (req, res) => {
   res.status(204).send(); // No Content
 });
 
+// Start server if not in Vercel environment
+if (require.main === module) {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
 // Export the app for Vercel
 module.exports = app;
