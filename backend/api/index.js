@@ -9,6 +9,11 @@ app.use(express.json()); // Enable JSON body parsing
 let todos = []; // In-memory storage for todos
 let nextId = 1; // Simple ID generator
 
+// Root route for API health check
+app.get('/', (req, res) => {
+  res.json({ message: 'Todo API is running' });
+});
+
 // GET all todos
 app.get('/todos', (req, res) => {
   res.json(todos);
