@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 // Define the base URL for your Express API
 const API_BASE_URL = import.meta.env.VITE_EXPRESS_API_URL;
+console.log('API_BASE_URL:', API_BASE_URL);
 
 interface Todo {
   id: number; // Using number for now, will be managed by Express backend
