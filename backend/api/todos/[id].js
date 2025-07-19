@@ -1,6 +1,4 @@
-// This will be imported from todos.js in a real app
-// For now, using in-memory storage (will reset on each deployment)
-let todos = [];
+import { updateTodo, deleteTodo } from '../storage.js';
 
 export default function handler(req, res) {
   // Enable CORS
@@ -18,24 +16,18 @@ export default function handler(req, res) {
 
   if (req.method === 'PUT') {
     const { text, completed } = req.body;
-    const todoIndex = todos.findIndex(todo => todo.id === todoId);
+    const updatedTodo = updateTodo(todoId, { text, completed });
 
-    if (todoIndex === -1) {
+    if (!updatedTodo) {
       return res.status(404).json({ error: 'Todo not found' });
     }
 
-    todos[todoIndex] = { 
-      ...todos[todoIndex], 
-      text: text || todos[todoIndex].text, 
-      completed: typeof completed === 'boolean' ? completed : todos[todoIndex].completed 
-    };
-    res.json(todos[todoIndex]);
+    res.json(updatedTodo);
   } 
   else if (req.method === 'DELETE') {
-    const initialLength = todos.length;
-    todos = todos.filter(todo => todo.id !== todoId);
+    const deleted = deleteTodo(todoId);
 
-    if (todos.length === initialLength) {
+    if (!deleted) {
       return res.status(404).json({ error: 'Todo not found' });
     }
     res.status(204).end();

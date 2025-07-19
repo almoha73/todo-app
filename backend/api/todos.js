@@ -1,5 +1,4 @@
-let todos = [];
-let nextId = 1;
+import { getTodos, addTodo } from './storage.js';
 
 export default function handler(req, res) {
   // Enable CORS
@@ -13,15 +12,14 @@ export default function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    res.json(todos);
+    res.json(getTodos());
   } 
   else if (req.method === 'POST') {
     const { text, completed } = req.body;
     if (!text) {
       return res.status(400).json({ error: 'Text is required' });
     }
-    const newTodo = { id: nextId++, text, completed: completed || false };
-    todos.push(newTodo);
+    const newTodo = addTodo({ text, completed: completed || false });
     res.status(201).json(newTodo);
   }
   else {
