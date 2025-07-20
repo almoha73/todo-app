@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Typography, TextField, Button, List, ListItem, ListItemText, IconButton, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-
-// Define the base URL for your Express API
-const API_BASE_URL = import.meta.env.VITE_EXPRESS_API_URL;
+import { supabase } from './supabaseClient';
 
 interface Todo {
   id: number; // Using number for now, will be managed by Express backend
@@ -21,12 +19,13 @@ function App() {
 
   const fetchTodos = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/todos`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data: Todo[] = await response.json();
-      setTodos(data);
+      const { data, error } = await supabase
+        .from('todos')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setTodos(data || []);
     } catch (error) {
       console.error('Error fetching todos:', error);
     }
@@ -36,19 +35,14 @@ function App() {
     if (inputValue.trim() === '') return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/todos`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: inputValue, completed: false }),
-      });
+      const { data, error } = await supabase
+        .from('todos')
+        .insert([{ text: inputValue, completed: false }])
+        .select()
+        .single();
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const newTodo: Todo = await response.json();
-      setTodos((prevTodos) => [...prevTodos, newTodo]);
+      if (error) throw error;
+      setTodos((prevTodos) => [data, ...prevTodos]);
       setInputValue('');
     } catch (error) {
       console.error('Error adding todo:', error);
@@ -60,22 +54,17 @@ function App() {
     if (!todoToUpdate) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/todos?id=${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ completed: !todoToUpdate.completed }),
-      });
+      const { data, error } = await supabase
+        .from('todos')
+        .update({ completed: !todoToUpdate.completed })
+        .eq('id', id)
+        .select()
+        .single();
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      // Assuming the backend returns the updated todo
-      const updatedTodo: Todo = await response.json();
+      if (error) throw error;
       setTodos((prevTodos) =>
         prevTodos.map((todo) =>
-          todo.id === id ? updatedTodo : todo
+          todo.id === id ? data : todo
         )
       );
     } catch (error) {
@@ -85,13 +74,12 @@ function App() {
 
   const deleteTodo = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/todos?id=${id}`, {
-        method: 'DELETE',
-      });
+      const { error } = await supabase
+        .from('todos')
+        .delete()
+        .eq('id', id);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (error) throw error;
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
     } catch (error) {
       console.error('Error deleting todo:', error);
