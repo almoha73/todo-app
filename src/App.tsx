@@ -99,7 +99,7 @@ function App() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ pt: 4 }}>
+    <Container maxWidth="sm">
       <Typography variant="h4" component="h1" gutterBottom textAlign="center">
         Ma Liste de Tâches
       </Typography>
@@ -124,12 +124,15 @@ function App() {
             key={todo.id}
             secondaryAction={
               <IconButton edge="end" aria-label="delete" onClick={() => deleteTodo(todo.id)}>
-                <DeleteIcon />
+                <DeleteIcon sx={{ color: '#FF3D00' }} />
               </IconButton>
             }
-            sx={{ textDecoration: todo.completed ? 'line-through' : 'none' }}
           >
-            <ListItemText primary={todo.text} onClick={() => toggleTodo(todo.id)} />
+            <ListItemText 
+              primary={todo.text} 
+              onClick={() => toggleTodo(todo.id)} 
+              sx={{ textDecoration: todo.completed ? 'line-through' : 'none', color: todo.completed ? '#B0B0B0' : '#FFFFFF' }}
+            />
           </ListItem>
         ))}
       </List>
