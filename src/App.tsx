@@ -119,7 +119,14 @@ function App() {
             <ListItemText 
               primary={todo.text} 
               onClick={() => toggleTodo(todo.id)} 
-              sx={{ textDecoration: todo.completed ? 'line-through' : 'none', color: todo.completed ? '#B0B0B0' : '#FFFFFF' }}
+              sx={{ 
+                textDecoration: todo.completed ? 'line-through' : 'none', 
+                color: todo.completed ? '#888888' : '#FFFFFF',
+                textDecorationThickness: todo.completed ? '3px' : 'initial',
+                textDecorationColor: todo.completed ? '#FF6B6B' : 'initial',
+                opacity: todo.completed ? 0.7 : 1,
+                cursor: 'pointer'
+              }}
             />
           </ListItem>
         ))}
